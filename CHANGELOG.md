@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.101.0](https://www.github.com/googleapis/java-logging/compare/v1.100.0...v1.101.0) (2020-02-27)
+
+
+### Features
+
+* add CmekSettings options ([#89](https://www.github.com/googleapis/java-logging/issues/89)) ([f76206d](https://www.github.com/googleapis/java-logging/commit/f76206d6d137fec9e73ef7e93a8b77193d71166c))
+
+
+### Dependencies
+
+* update core dependencies ([#61](https://www.github.com/googleapis/java-logging/issues/61)) ([a73322c](https://www.github.com/googleapis/java-logging/commit/a73322cb0e8f43eb253a4004189f1e4d387dcb1c))
+* update core dependencies ([#85](https://www.github.com/googleapis/java-logging/issues/85)) ([5e61aa7](https://www.github.com/googleapis/java-logging/commit/5e61aa7180934af6b63e845f2d172c6e6d08d0ee))
+* update core dependencies ([#92](https://www.github.com/googleapis/java-logging/issues/92)) ([4fe64cc](https://www.github.com/googleapis/java-logging/commit/4fe64cc5fa0c680733e42cfc6d40c9e7aaac77a6))
+* update dependency com.google.http-client:google-http-client-bom to v1.34.1 ([#81](https://www.github.com/googleapis/java-logging/issues/81)) ([dacc7db](https://www.github.com/googleapis/java-logging/commit/dacc7db6775a5489f1d43467bbece7fd781e14ba))
+* update dependency com.google.http-client:google-http-client-bom to v1.34.2 ([#94](https://www.github.com/googleapis/java-logging/issues/94)) ([55f6936](https://www.github.com/googleapis/java-logging/commit/55f6936f9933d17d29ea5244d93b9460837a7c70))
+* update dependency com.google.protobuf:protobuf-bom to v3.11.3 ([#87](https://www.github.com/googleapis/java-logging/issues/87)) ([dee31b3](https://www.github.com/googleapis/java-logging/commit/dee31b386b7b930419013a17cb1ae0399d7a5bdf))
+* update dependency com.google.protobuf:protobuf-bom to v3.11.4 ([#95](https://www.github.com/googleapis/java-logging/issues/95)) ([954897e](https://www.github.com/googleapis/java-logging/commit/954897e43c746961d69550644f1dd5a2936d50e5))
+
+
+### Documentation
+
+* **regen:** update sample code to set total timeout, add API client header test ([#91](https://www.github.com/googleapis/java-logging/issues/91)) ([133a762](https://www.github.com/googleapis/java-logging/commit/133a762a93f0bd2725edc5342eada77459c78896))
+
 ## [1.100.0](https://www.github.com/googleapis/java-logging/compare/v1.99.0...v1.100.0) (2020-01-23)
 
 
