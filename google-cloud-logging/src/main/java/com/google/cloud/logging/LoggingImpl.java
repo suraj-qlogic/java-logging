@@ -103,6 +103,8 @@ class LoggingImpl extends BaseService<LoggingOptions> implements Logging {
         }
       };
   private static final ThreadLocal<Boolean> inWriteCall = new ThreadLocal<>();
+  private static final boolean FLUSH_ON_ERROR = Boolean.parseBoolean(System.getenv("FLUSH_ON_ERROR"));
+  private static final int BUFFER_SIZE = 1000;
 
   LoggingImpl(LoggingOptions options) {
     super(options);
@@ -572,6 +574,12 @@ class LoggingImpl extends BaseService<LoggingOptions> implements Logging {
   public void flush() {
     // BUG(1795): We should force batcher to issue RPC call for buffered messages,
     // so the code below doesn't wait uselessly.
+    boolean flushBuffer = (pendingWrites.size() < BUFFER_SIZE && !closed) ? true : false;
+    if (flushBuffer) {
+      return;
+    } else if (FLUSH_ON_ERROR) {
+      return;
+    }
     ArrayList<ApiFuture<Void>> writesToFlush = new ArrayList<>();
     writesToFlush.addAll(pendingWrites.values());
 
