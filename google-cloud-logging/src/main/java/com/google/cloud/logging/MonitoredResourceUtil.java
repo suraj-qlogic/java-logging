@@ -22,6 +22,9 @@ import com.google.cloud.ServiceOptions;
 import com.google.cloud.logging.LogEntry.Builder;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMultimap;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,7 +46,9 @@ public class MonitoredResourceUtil {
     Location("location"),
     ModuleId("module_id"),
     NamespaceId("namespace_id"),
+    NamespaceName("namespace_name"),
     PodId("pod_id"),
+    PodName("pod_name"),
     ProjectId("project_id"),
     RevisionName("revision_name"),
     ServiceName("service_name"),
@@ -67,6 +72,7 @@ public class MonitoredResourceUtil {
     GaeAppFlex("gae_app_flex"),
     GaeAppStandard("gae_app_standard"),
     GceInstance("gce_instance"),
+    K8sContainer("k8s_container"),
     Global("global");
 
     private final String key;
@@ -96,6 +102,13 @@ public class MonitoredResourceUtil {
           .putAll(Resource.GaeAppFlex.getKey(), Label.ModuleId, Label.VersionId, Label.Zone)
           .putAll(Resource.GaeAppStandard.getKey(), Label.ModuleId, Label.VersionId)
           .putAll(Resource.GceInstance.getKey(), Label.InstanceId, Label.Zone)
+          .putAll(
+              Resource.K8sContainer.getKey(),
+              Label.Location,
+              Label.ClusterName,
+              Label.NamespaceName,
+              Label.PodName,
+              Label.ContainerName)
           .build();
 
   private MonitoredResourceUtil() {}
@@ -116,7 +129,7 @@ public class MonitoredResourceUtil {
         MonitoredResource.newBuilder(resourceName).addLabel(Label.ProjectId.getKey(), projectId);
 
     for (Label label : resourceTypeWithLabels.get(resourceType)) {
-      String value = getValue(label);
+      String value = getValue(label, resourceType);
       if (value != null) {
         builder.addLabel(label.getKey(), value);
       }
@@ -134,7 +147,7 @@ public class MonitoredResourceUtil {
     return createEnhancers(resourceType);
   }
 
-  private static String getValue(Label label) {
+  private static String getValue(Label label, String resourceType) {
     String value;
     switch (label) {
       case AppId:
@@ -144,7 +157,12 @@ public class MonitoredResourceUtil {
         value = MetadataConfig.getClusterName();
         break;
       case ContainerName:
-        value = MetadataConfig.getContainerName();
+        if (resourceType.equals("k8s_container")) {
+          String hostName = System.getenv("HOSTNAME");
+          value = hostName.substring(0, hostName.indexOf("-"));
+        } else {
+          value = MetadataConfig.getContainerName();
+        }
         break;
       case InstanceId:
         value = MetadataConfig.getInstanceId();
@@ -161,6 +179,17 @@ public class MonitoredResourceUtil {
       case NamespaceId:
         value = MetadataConfig.getNamespaceId();
         break;
+      case NamespaceName:
+        try {
+          value =
+              new String(
+                  Files.readAllBytes(
+                      Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/namespace")));
+        } catch (IOException e) {
+          throw new LoggingException(e, true);
+        }
+        break;
+      case PodName:
       case PodId:
         value = System.getenv("HOSTNAME");
         break;
@@ -261,10 +290,10 @@ public class MonitoredResourceUtil {
       labels = new HashMap<>();
       if (labelNames != null) {
         for (Label labelName : labelNames) {
-          String labelValue = MonitoredResourceUtil.getValue(labelName);
+          String fullLabelName =
+              (prefix != null) ? prefix + labelName.getKey() : labelName.getKey();
+          String labelValue = MonitoredResourceUtil.getValue(labelName, fullLabelName);
           if (labelValue != null) {
-            String fullLabelName =
-                (prefix != null) ? prefix + labelName.getKey() : labelName.getKey();
             labels.put(fullLabelName, labelValue);
           }
         }
